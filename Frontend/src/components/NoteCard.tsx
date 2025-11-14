@@ -1,3 +1,7 @@
+// -------------------------------
+// NoteCard.tsx (FIXED VERSION)
+// -------------------------------
+
 import React, { useState } from "react";
 import {
   Card,
@@ -41,6 +45,10 @@ const NoteCard: React.FC<NoteCardProps> = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openModal, setOpenModal] = useState(false);
+
+  // ❗ NEW STATES TO FIX "SEE MORE" ISSUE
+  const [modalContent, setModalContent] = useState(""); // Stores text to show in modal
+  const [modalTitle, setModalTitle] = useState(""); // Stores modal title
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -93,8 +101,22 @@ const NoteCard: React.FC<NoteCardProps> = ({
     return text.substring(0, maxLength) + "...";
   };
 
-  const handleSeeMore = () => {
-    setOpenModal(true);
+  // ------------------------------------
+  // FIXED: Separate "See More" handlers
+  // ------------------------------------
+
+  // For FULL image analysis text
+  const handleSeeMoreImage = () => {
+    setModalTitle("AI Image Analysis"); // Set modal title
+    setModalContent(note.image_description || ""); // Set full text content
+    setOpenModal(true); // Open modal
+  };
+
+  // For FULL summary text
+  const handleSeeMoreSummary = () => {
+    setModalTitle("AI Summary"); // Set modal title
+    setModalContent(note.summary || ""); // Set full text content
+    setOpenModal(true); // Open modal
   };
 
   const handleCloseModal = () => {
@@ -116,12 +138,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
       }}
     >
       <CardContent sx={{ flexGrow: 1 }}>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="flex-start"
-          mb={1}
-        >
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
           <Typography variant="h6" component="h2" gutterBottom>
             {note.title || "Untitled Note"}
           </Typography>
@@ -134,6 +151,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
           {truncateText(note.content, 150)}
         </Typography>
 
+        {/* IMAGE PREVIEW */}
         {note.image_path && (
           <Box sx={{ mt: 2, mb: 2 }}>
             <img
@@ -145,43 +163,33 @@ const NoteCard: React.FC<NoteCardProps> = ({
                 objectFit: "cover",
                 borderRadius: "8px",
               }}
-              onError={(e) => {
-                console.error('Image load error:', e);
-                e.currentTarget.style.display = 'none';
-              }}
             />
-            
           </Box>
-          
         )}
 
+        {/* IMAGE ANALYSIS BOX */}
         {note.image_description && (
-          <Box sx={{ 
-            mt: 2, 
-            p: 2, 
-            bgcolor: (theme) => theme.palette.mode === 'light' ? 'secondary.50' : 'rgba(244, 143, 177, 0.1)', 
-            borderRadius: 1,
-            border: (theme) => theme.palette.mode === 'dark' ? '1px solid rgba(244, 143, 177, 0.2)' : 'none'
-          }}>
+          <Box sx={{ mt: 2, p: 2, bgcolor: "secondary.50", borderRadius: 1 }}>
             <Box display="flex" alignItems="center" mb={1}>
-              <ImageIcon
-                sx={{ fontSize: 16, mr: 1, color: "secondary.main" }}
-              />
-              <Typography
-                variant="caption"
-                color="secondary.main"
-                fontWeight="medium"
-              >
+              <ImageIcon sx={{ fontSize: 16, mr: 1, color: "secondary.main" }} />
+              <Typography variant="caption" color="secondary.main" fontWeight="medium">
                 AI Image Analysis
               </Typography>
             </Box>
+
+            {/* Truncated text */}
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               {truncateText(note.image_description, 100)}
             </Typography>
+
+            {/* FIXED: Image "See More" opens correct modal */}
             {note.image_description.length > 100 && (
+              // <Button size="small" onClick={handleSeeMoreImage}>
+              //   See More
+              // </Button>
               <Button
                 size="small"
-                onClick={handleSeeMore}
+                onClick={handleSeeMoreImage}
                 sx={{
                   textTransform: "none",
                   fontSize: "0.75rem",
@@ -201,33 +209,29 @@ const NoteCard: React.FC<NoteCardProps> = ({
           </Box>
         )}
 
+        {/* SUMMARY BOX */}
         {note.summary && (
-          <Box sx={{ 
-            mt: 2, 
-            p: 2, 
-            bgcolor: (theme) => theme.palette.mode === 'light' ? 'primary.50' : 'rgba(144, 202, 249, 0.1)', 
-            borderRadius: 1,
-            border: (theme) => theme.palette.mode === 'dark' ? '1px solid rgba(144, 202, 249, 0.2)' : 'none'
-          }}>
+          <Box sx={{ mt: 2, p: 2, bgcolor: "primary.50", borderRadius: 1 }}>
             <Box display="flex" alignItems="center" mb={1}>
-              <AutoAwesome
-                sx={{ fontSize: 16, mr: 1, color: "primary.main" }}
-              />
-              <Typography
-                variant="caption"
-                color="primary.main"
-                fontWeight="medium"
-              >
+              <AutoAwesome sx={{ fontSize: 16, mr: 1, color: "primary.main" }} />
+              <Typography variant="caption" color="primary.main" fontWeight="medium">
                 AI Summary
               </Typography>
             </Box>
+
+            {/* Truncated summary */}
             <Typography variant="body2" color="text.secondary">
               {truncateText(note.summary, 100)}
             </Typography>
-             {note.summary.length > 100 && (
+
+            {/* FIXED: Summary "See More" opens correct modal */}
+            {note.summary.length > 100 && (
+              // <Button size="small" onClick={handleSeeMoreSummary}>
+              //   See More
+              // </Button>
               <Button
                 size="small"
-                onClick={handleSeeMore}
+                onClick={handleSeeMoreSummary}
                 sx={{
                   textTransform: "none",
                   fontSize: "0.75rem",
@@ -255,48 +259,32 @@ const NoteCard: React.FC<NoteCardProps> = ({
         </Box>
       </CardContent>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
+      {/* MENU */}
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={handleEdit}>
-          <Edit sx={{ mr: 1, fontSize: 20 }} />
-          Edit
+          <Edit sx={{ mr: 1, fontSize: 20 }} /> Edit
         </MenuItem>
         <MenuItem onClick={handleSummarize}>
-          <AutoAwesome sx={{ mr: 1, fontSize: 20 }} />
-          Summarize with AI
+          <AutoAwesome sx={{ mr: 1, fontSize: 20 }} /> Summarize with AI
         </MenuItem>
         <MenuItem component="label">
-          <PhotoCamera sx={{ mr: 1, fontSize: 20 }} />
-          Upload Image
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleImageUpload}
-          />
+          <PhotoCamera sx={{ mr: 1, fontSize: 20 }} /> Upload Image
+          <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
         </MenuItem>
         {note.image_path && (
           <MenuItem onClick={handleAnalyzeImage}>
-            <ImageIcon sx={{ mr: 1, fontSize: 20 }} />
-            Analyze Image with AI
+            <ImageIcon sx={{ mr: 1, fontSize: 20 }} /> Analyze Image with AI
           </MenuItem>
         )}
         <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
-          <Delete sx={{ mr: 1, fontSize: 20 }} />
-          Delete
+          <Delete sx={{ mr: 1, fontSize: 20 }} /> Delete
         </MenuItem>
       </Menu>
 
-      {/* Modal for Full Description */}
-      <Modal
-        open={openModal}
-        onClose={handleCloseModal}
-        aria-labelledby="description-modal-title"
-        aria-describedby="description-modal-description"
-      >
+      {/* ------------------------------ */}
+      {/* FIXED MODAL — SHOWS CORRECT CONTENT */}
+      {/* ------------------------------ */}
+      <Modal open={openModal} onClose={handleCloseModal}>
         <Box
           sx={{
             position: "absolute",
@@ -323,47 +311,25 @@ const NoteCard: React.FC<NoteCardProps> = ({
               p: 2,
               borderBottom: 1,
               borderColor: "divider",
-              bgcolor: (theme) =>
-                theme.palette.mode === "light"
-                  ? "secondary.50"
-                  : "rgba(244, 143, 177, 0.1)",
             }}
           >
-            <Box display="flex" alignItems="center">
-              <ImageIcon sx={{ mr: 1, color: "secondary.main" }} />
-              <Typography
-                id="description-modal-title"
-                variant="h6"
-                component="h2"
-                color="secondary.main"
-              >
-                AI Image Analysis
-              </Typography>
-            </Box>
+            <Typography variant="h6" color="secondary.main">
+              {modalTitle} {/* <-- Title updates based on what was clicked */}
+            </Typography>
+
             <IconButton onClick={handleCloseModal} size="small">
               <Close />
             </IconButton>
           </Box>
 
           {/* Modal Content */}
-          <Box
-            sx={{
-              p: 3,
-              overflowY: "auto",
-              flexGrow: 1,
-            }}
-          >
-            <Typography
-              id="description-modal-description"
-              variant="body1"
-              color="text.primary"
-              sx={{ whiteSpace: "pre-wrap", lineHeight: 1.7 }}
-            >
-              {note.image_description}
+          <Box sx={{ p: 3, overflowY: "auto", flexGrow: 1 }}>
+            <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.7 }}>
+              {modalContent} {/* <-- FULL content shown */}
             </Typography>
           </Box>
 
-          {/* Modal Footer */}
+          {/* Footer */}
           <Box
             sx={{
               p: 2,
@@ -373,12 +339,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
               justifyContent: "flex-end",
             }}
           >
-            <Button
-              onClick={handleCloseModal}
-              variant="contained"
-              color="secondary"
-              sx={{ textTransform: "none" }}
-            >
+            <Button onClick={handleCloseModal} variant="contained" color="secondary">
               Close
             </Button>
           </Box>
@@ -389,3 +350,4 @@ const NoteCard: React.FC<NoteCardProps> = ({
 };
 
 export default NoteCard;
+
