@@ -2,7 +2,11 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  full_name?: string;
+  bio?: string;
+  avatar_path?: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Note {

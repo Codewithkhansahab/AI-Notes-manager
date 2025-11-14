@@ -14,10 +14,20 @@ class UserOut(BaseModel):
     id: int
     username: str
     email: EmailStr
+    full_name: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_path: Optional[str] = None
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
+
+
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    bio: Optional[str] = None
+    email: Optional[EmailStr] = None
 
 
 # Token

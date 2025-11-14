@@ -1,25 +1,28 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
   Typography,
-  Button,
   Box,
   Container,
   IconButton,
   Menu,
   MenuItem,
   Tooltip,
+  Avatar,
 } from '@mui/material';
 import { 
   AccountCircle, 
   ExitToApp, 
   Notes, 
   DarkMode, 
-  LightMode 
+  LightMode,
+  Person,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { profileAPI } from '../services/api';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,6 +31,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -38,9 +42,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     setAnchorEl(null);
   };
 
+  const handleProfile = () => {
+    navigate('/profile');
+    handleClose();
+  };
+
+  const handleDashboard = () => {
+    navigate('/');
+    handleClose();
+  };
+
   const handleLogout = () => {
     logout();
     handleClose();
+  };
+
+  const getAvatarUrl = () => {
+    if (user?.avatar_path) {
+      return profileAPI.getAvatarUrl(user.avatar_path);
+    }
+    return undefined;
   };
 
   return (
@@ -65,16 +86,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {user && (
             <div>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
+              <Tooltip title="Account">
+                <IconButton
+                  onClick={handleMenu}
+                  sx={{ p: 0 }}
+                >
+                  <Avatar
+                    src={getAvatarUrl()}
+                    alt={user.username}
+                    sx={{ width: 40, height: 40 }}
+                  >
+                    {user.username?.charAt(0).toUpperCase()}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
@@ -90,8 +115,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>
-                  <Typography variant="body2">{user.username}</Typography>
+                <MenuItem disabled>
+                  <Typography variant="body2" fontWeight="bold">
+                    {user.username}
+                  </Typography>
+                </MenuItem>
+                <MenuItem onClick={handleDashboard}>
+                  <Notes sx={{ mr: 1 }} />
+                  Dashboard
+                </MenuItem>
+                <MenuItem onClick={handleProfile}>
+                  <Person sx={{ mr: 1 }} />
+                  Profile
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <ExitToApp sx={{ mr: 1 }} />

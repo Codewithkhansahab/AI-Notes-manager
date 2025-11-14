@@ -7,6 +7,7 @@ interface AuthContextType {
   token: string | null;
   login: (token: string) => Promise<void>;
   logout: () => void;
+  updateUser: (userData: User) => void;
   loading: boolean;
 }
 
@@ -64,11 +65,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (userData: User) => {
+    setUser(userData);
+  };
+
   const value = {
     user,
     token,
     login,
     logout,
+    updateUser,
     loading,
   };
 

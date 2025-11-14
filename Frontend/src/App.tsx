@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 
 const App: React.FC = () => {
   return (
@@ -17,6 +18,16 @@ const App: React.FC = () => {
           <ProtectedRoute>
             <Layout>
               <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Profile />
             </Layout>
           </ProtectedRoute>
         }

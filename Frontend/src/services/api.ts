@@ -79,3 +79,26 @@ export const notesAPI = {
   getImageUrl: (filename: string): string =>
     `${API_BASE_URL}/notes/image/${filename}`,
 };
+
+// Profile API
+export const profileAPI = {
+  getProfile: (): Promise<User> =>
+    api.get('/profile/me').then(res => res.data),
+  
+  updateProfile: (data: { full_name?: string; bio?: string; email?: string }): Promise<User> =>
+    api.put('/profile/me', data).then(res => res.data),
+  
+  uploadAvatar: (file: File): Promise<User> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/profile/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(res => res.data);
+  },
+  
+  deleteAvatar: (): Promise<User> =>
+    api.delete('/profile/avatar').then(res => res.data),
+  
+  getAvatarUrl: (avatarPath: string): string =>
+    `${API_BASE_URL}/${avatarPath}`,
+};

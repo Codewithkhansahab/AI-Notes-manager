@@ -11,7 +11,11 @@ class User(Base):
     username = Column(String(128), unique=True, index=True, nullable=False)
     email = Column(String(256), unique=True, index=True, nullable=False)
     hashed_password = Column(String(256), nullable=False)
+    full_name = Column(String(256), nullable=True)
+    bio = Column(Text, nullable=True)
+    avatar_path = Column(String(512), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     notes = relationship("Note", back_populates="owner")
 

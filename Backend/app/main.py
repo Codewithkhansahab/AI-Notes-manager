@@ -8,6 +8,7 @@ from app.config import settings
 from app.database import engine, Base
 from app.auth import routes as auth_routes
 from app.notes import routes as notes_routes
+from app.profile import routes as profile_routes
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -41,6 +42,7 @@ async def log_requests(request, call_next):
 
 app.include_router(auth_routes.router)
 app.include_router(notes_routes.router)
+app.include_router(profile_routes.router)
 
 # Create uploads directory and mount static files
 uploads_dir = "uploads"
