@@ -8,6 +8,7 @@ from app.database import get_db
 from app.auth.utils import get_password_hash, verify_password, create_access_token
 from app.config import settings
 from app.deps import get_current_user
+from app.tasks import send_welcome_email, send_login_notification
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -21,6 +22,10 @@ def register(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
+    
+    # Send welcome email asynchronously
+    send_welcome_email.delay(user.email, user.username)
+    
     return user
 
 
@@ -31,6 +36,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"user_id": user.id, "username": user.username}, expires_delta=access_token_expires)
+    
+    # Send login notification asynchronously (optional - comment out if not needed)
+    send_login_notification.delay(user.email, user.username)
+    
     return {"access_token": access_token, "token_type": "bearer"}
 
 
