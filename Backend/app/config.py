@@ -9,6 +9,17 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./app.db"
     GEMINI_API_KEY: str = "AIzaSyCps-K2jdyov4Yy4lEnykxuos-2c4HB50Y"
     OPENAI_API_KEY: str = "your-openai-api-key-here"
+    
+    # Celery Configuration
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
+    
+    # Email Configuration
+    EMAIL_USERNAME: str = ""
+    EMAIL_PASSWORD: str = ""
+    SMTP_SERVER: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    FROM_EMAIL: str = ""
 
     #  Modern config syntax (replaces class Config)
     model_config = ConfigDict(

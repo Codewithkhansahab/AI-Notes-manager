@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import {
   Card,
   CardContent,
-  CardActions,
   Typography,
   IconButton,
   Menu,
   MenuItem,
-  Chip,
   Box,
-  Tooltip,
+  Modal,
+  Button,
 } from "@mui/material";
 import {
   MoreVert,
@@ -19,6 +18,7 @@ import {
   Schedule,
   Image as ImageIcon,
   PhotoCamera,
+  Close,
 } from "@mui/icons-material";
 import { Note } from "../types";
 
@@ -40,6 +40,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
   onAnalyzeImage,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -92,6 +93,14 @@ const NoteCard: React.FC<NoteCardProps> = ({
     return text.substring(0, maxLength) + "...";
   };
 
+  const handleSeeMore = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   return (
     <Card
       elevation={2}
@@ -141,7 +150,9 @@ const NoteCard: React.FC<NoteCardProps> = ({
                 e.currentTarget.style.display = 'none';
               }}
             />
+            
           </Box>
+          
         )}
 
         {note.image_description && (
@@ -164,9 +175,29 @@ const NoteCard: React.FC<NoteCardProps> = ({
                 AI Image Analysis
               </Typography>
             </Box>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               {truncateText(note.image_description, 100)}
             </Typography>
+            {note.image_description.length > 100 && (
+              <Button
+                size="small"
+                onClick={handleSeeMore}
+                sx={{
+                  textTransform: "none",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: "secondary.main",
+                  padding: "2px 8px",
+                  minWidth: "auto",
+                  "&:hover": {
+                    backgroundColor: "secondary.light",
+                    color: "secondary.dark",
+                  },
+                }}
+              >
+                See More
+              </Button>
+            )}
           </Box>
         )}
 
@@ -193,6 +224,26 @@ const NoteCard: React.FC<NoteCardProps> = ({
             <Typography variant="body2" color="text.secondary">
               {truncateText(note.summary, 100)}
             </Typography>
+             {note.summary.length > 100 && (
+              <Button
+                size="small"
+                onClick={handleSeeMore}
+                sx={{
+                  textTransform: "none",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: "secondary.main",
+                  padding: "2px 8px",
+                  minWidth: "auto",
+                  "&:hover": {
+                    backgroundColor: "secondary.light",
+                    color: "secondary.dark",
+                  },
+                }}
+              >
+                See More
+              </Button>
+            )}
           </Box>
         )}
 
@@ -238,6 +289,101 @@ const NoteCard: React.FC<NoteCardProps> = ({
           Delete
         </MenuItem>
       </Menu>
+
+      {/* Modal for Full Description */}
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="description-modal-title"
+        aria-describedby="description-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", sm: "80%", md: "60%" },
+            maxWidth: 700,
+            maxHeight: "80vh",
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 24,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Modal Header */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              p: 2,
+              borderBottom: 1,
+              borderColor: "divider",
+              bgcolor: (theme) =>
+                theme.palette.mode === "light"
+                  ? "secondary.50"
+                  : "rgba(244, 143, 177, 0.1)",
+            }}
+          >
+            <Box display="flex" alignItems="center">
+              <ImageIcon sx={{ mr: 1, color: "secondary.main" }} />
+              <Typography
+                id="description-modal-title"
+                variant="h6"
+                component="h2"
+                color="secondary.main"
+              >
+                AI Image Analysis
+              </Typography>
+            </Box>
+            <IconButton onClick={handleCloseModal} size="small">
+              <Close />
+            </IconButton>
+          </Box>
+
+          {/* Modal Content */}
+          <Box
+            sx={{
+              p: 3,
+              overflowY: "auto",
+              flexGrow: 1,
+            }}
+          >
+            <Typography
+              id="description-modal-description"
+              variant="body1"
+              color="text.primary"
+              sx={{ whiteSpace: "pre-wrap", lineHeight: 1.7 }}
+            >
+              {note.image_description}
+            </Typography>
+          </Box>
+
+          {/* Modal Footer */}
+          <Box
+            sx={{
+              p: 2,
+              borderTop: 1,
+              borderColor: "divider",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              onClick={handleCloseModal}
+              variant="contained"
+              color="secondary"
+              sx={{ textTransform: "none" }}
+            >
+              Close
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Card>
   );
 };
