@@ -16,6 +16,8 @@ export interface Note {
   summary?: string;
   image_path?: string;
   image_description?: string;
+  audio_path?: string;
+  audio_transcription?: string;
   owner_id: number;
   created_at: string;
   updated_at: string;

@@ -23,8 +23,12 @@ import {
   Image as ImageIcon,
   PhotoCamera,
   Close,
+  Mic,
+  Transcribe,
 } from "@mui/icons-material";
 import { Note } from "../types";
+import AudioPlayer from "./AudioPlayer";
+import { notesAPI } from "../services/api";
 
 interface NoteCardProps {
   note: Note;
@@ -33,6 +37,8 @@ interface NoteCardProps {
   onSummarize: (id: number) => void;
   onUploadImage: (id: number, file: File) => void;
   onAnalyzeImage: (id: number) => void;
+  onUploadAudio: (id: number, audioBlob: Blob) => void;
+  onTranscribeAudio: (id: number) => void;
 }
 
 const NoteCard: React.FC<NoteCardProps> = ({
@@ -42,6 +48,8 @@ const NoteCard: React.FC<NoteCardProps> = ({
   onSummarize,
   onUploadImage,
   onAnalyzeImage,
+  onUploadAudio,
+  onTranscribeAudio,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -83,6 +91,20 @@ const NoteCard: React.FC<NoteCardProps> = ({
 
   const handleAnalyzeImage = () => {
     onAnalyzeImage(note.id);
+    handleMenuClose();
+  };
+
+  const handleAudioUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Convert file to Blob
+      onUploadAudio(note.id, file);
+    }
+    handleMenuClose();
+  };
+
+  const handleTranscribeAudio = () => {
+    onTranscribeAudio(note.id);
     handleMenuClose();
   };
 
@@ -209,6 +231,14 @@ const NoteCard: React.FC<NoteCardProps> = ({
           </Box>
         )}
 
+        {/* AUDIO PLAYER */}
+        {note.audio_path && (
+          <AudioPlayer
+            audioUrl={notesAPI.getAudioUrl(note.audio_path)}
+            transcription={note.audio_transcription}
+          />
+        )}
+
         {/* SUMMARY BOX */}
         {note.summary && (
           <Box sx={{ mt: 2, p: 2, bgcolor: "primary.50", borderRadius: 1 }}>
@@ -274,6 +304,15 @@ const NoteCard: React.FC<NoteCardProps> = ({
         {note.image_path && (
           <MenuItem onClick={handleAnalyzeImage}>
             <ImageIcon sx={{ mr: 1, fontSize: 20 }} /> Analyze Image with AI
+          </MenuItem>
+        )}
+        <MenuItem component="label">
+          <Mic sx={{ mr: 1, fontSize: 20 }} /> Upload Audio
+          <input type="file" accept="audio/*" hidden onChange={handleAudioUpload} />
+        </MenuItem>
+        {note.audio_path && !note.audio_transcription && (
+          <MenuItem onClick={handleTranscribeAudio}>
+            <Transcribe sx={{ mr: 1, fontSize: 20 }} /> Transcribe Audio
           </MenuItem>
         )}
         <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>

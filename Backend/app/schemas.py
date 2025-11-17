@@ -57,6 +57,8 @@ class NoteOut(BaseModel):
     summary: Optional[str]
     image_path: Optional[str]
     image_description: Optional[str]
+    audio_path: Optional[str]
+    audio_transcription: Optional[str]
     owner_id: int
     created_at: datetime
     updated_at: datetime

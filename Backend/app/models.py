@@ -29,6 +29,8 @@ class Note(Base):
     summary = Column(Text, nullable=True)
     image_path = Column(String(512), nullable=True)
     image_description = Column(Text, nullable=True)
+    audio_path = Column(String(512), nullable=True)
+    audio_transcription = Column(Text, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

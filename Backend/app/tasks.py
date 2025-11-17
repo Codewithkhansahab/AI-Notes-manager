@@ -27,7 +27,9 @@ def send_welcome_email(self, email: str, username: str):
         The Team
         """
 
-       html = f"""
+        verification_link = "http://localhost:5173/"
+        
+        html = f"""
 <!DOCTYPE html>
 <html>
   <body style="margin:0; padding:0; background:#f4f4f4; font-family:Arial, sans-serif;">
@@ -156,7 +158,9 @@ def send_login_notification(self, email: str, username: str):
         The Team
         """
 
-       html = f"""
+        secure_link = "http://localhost:5173/profile"
+        
+        html = f"""
 <!DOCTYPE html>
 <html>
   <body style="margin:0; padding:0; background:#f4f4f4; font-family:Arial, sans-serif;">

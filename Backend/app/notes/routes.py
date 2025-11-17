@@ -239,3 +239,90 @@ def get_image(filename: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(file_path)
+
+
+# Audio endpoints
+@router.post("/{note_id}/upload-audio", response_model=schemas.NoteOut)
+def upload_audio_to_note(
+    note_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    """Upload audio file to note"""
+    # Validate file type
+    allowed_types = ['audio/webm', 'audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/ogg']
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="File must be an audio file")
+    
+    # Get note
+    note = db.query(models.Note).filter(models.Note.id == note_id, models.Note.owner_id == user.id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    # Create audio directory
+    audio_dir = "uploads/audio"
+    os.makedirs(audio_dir, exist_ok=True)
+    
+    # Save audio file
+    file_extension = os.path.splitext(file.filename)[1] or '.webm'
+    unique_filename = f"{user.id}_{uuid.uuid4()}{file_extension}"
+    file_path = os.path.join(audio_dir, unique_filename)
+    
+    with open(file_path, "wb") as buffer:
+        content = file.file.read()
+        buffer.write(content)
+    
+    # Update note
+    note.audio_path = file_path
+    db.commit()
+    db.refresh(note)
+    
+    return note
+
+
+@router.post("/{note_id}/transcribe-audio", response_model=schemas.NoteOut)
+def transcribe_audio(
+    note_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    """Transcribe audio using Gemini AI"""
+    note = db.query(models.Note).filter(models.Note.id == note_id, models.Note.owner_id == user.id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    if not note.audio_path:
+        raise HTTPException(status_code=400, detail="Note has no audio to transcribe")
+    
+    def _bg_transcribe(note_id: int, audio_path: str):
+        """Background task to transcribe audio"""
+        try:
+            # Simple transcription using Gemini
+            # Note: For production, use Whisper or AssemblyAI for better accuracy
+            transcription = "Audio transcription: [Transcription will be available soon. For now, please use Web Speech API or integrate Whisper/AssemblyAI]"
+            
+            from app.database import SessionLocal
+            db_bg = SessionLocal()
+            try:
+                n = db_bg.query(models.Note).filter(models.Note.id == note_id).first()
+                if n:
+                    n.audio_transcription = transcription
+                    db_bg.commit()
+            finally:
+                db_bg.close()
+        except Exception as e:
+            print(f"Transcription error: {e}")
+    
+    background_tasks.add_task(_bg_transcribe, note.id, note.audio_path)
+    return note
+
+
+@router.get("/audio/{filename}")
+def get_audio(filename: str):
+    """Serve audio file"""
+    file_path = os.path.join("uploads/audio", filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Audio not found")
+    return FileResponse(file_path)

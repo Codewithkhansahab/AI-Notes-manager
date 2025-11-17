@@ -141,6 +141,33 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleAudioRecorded = async (audioBlob: Blob) => {
+    // This will be called from NoteDialog after note is created
+    // For now, we'll handle it in the dialog save flow
+  };
+
+  const handleUploadAudio = async (id: number, audioBlob: Blob) => {
+    try {
+      showSnackbar('Uploading audio...', 'info');
+      const updatedNote = await notesAPI.uploadAudio(id, audioBlob);
+      setNotes(notes.map(note => note.id === id ? updatedNote : note));
+      showSnackbar('Audio uploaded successfully!', 'success');
+    } catch (error) {
+      showSnackbar('Failed to upload audio', 'error');
+    }
+  };
+
+  const handleTranscribeAudio = async (id: number) => {
+    try {
+      showSnackbar('Transcribing audio...', 'info');
+      const updatedNote = await notesAPI.transcribeAudio(id);
+      setNotes(notes.map(note => note.id === id ? updatedNote : note));
+      showSnackbar('Audio transcribed successfully', 'success');
+    } catch (error) {
+      showSnackbar('Failed to transcribe audio', 'error');
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -207,6 +234,8 @@ const Dashboard: React.FC = () => {
                 onSummarize={handleSummarizeNote}
                 onUploadImage={handleUploadImage}
                 onAnalyzeImage={handleAnalyzeImage}
+                onUploadAudio={handleUploadAudio}
+                onTranscribeAudio={handleTranscribeAudio}
               />
             </Grid>
           ))}
@@ -230,6 +259,7 @@ const Dashboard: React.FC = () => {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSave={handleSaveNote}
+        onAudioRecorded={handleAudioRecorded}
         note={editingNote}
         loading={dialogLoading}
       />

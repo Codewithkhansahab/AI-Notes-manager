@@ -78,6 +78,21 @@ export const notesAPI = {
   
   getImageUrl: (filename: string): string =>
     `${API_BASE_URL}/notes/image/${filename}`,
+  
+  uploadAudio: (id: number, audioBlob: Blob): Promise<Note> => {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'audio.webm');
+    return api.post(`/notes/${id}/upload-audio`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000
+    }).then(res => res.data);
+  },
+  
+  transcribeAudio: (id: number): Promise<Note> =>
+    api.post(`/notes/${id}/transcribe-audio`, {}, { timeout: 30000 }).then(res => res.data),
+  
+  getAudioUrl: (audioPath: string): string =>
+    `${API_BASE_URL}/${audioPath}`,
 };
 
 // Profile API

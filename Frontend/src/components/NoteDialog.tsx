@@ -11,11 +11,13 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Note, CreateNoteRequest, UpdateNoteRequest } from '../types';
+import AudioRecorder from './AudioRecorder';
 
 interface NoteDialogProps {
   open: boolean;
   onClose: () => void;
   onSave: (data: CreateNoteRequest | UpdateNoteRequest) => void;
+  onAudioRecorded?: (audioBlob: Blob) => void;
   note?: Note | null;
   loading?: boolean;
 }
@@ -24,6 +26,7 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
   open,
   onClose,
   onSave,
+  onAudioRecorded,
   note,
   loading = false,
 }) => {
@@ -110,6 +113,10 @@ const NoteDialog: React.FC<NoteDialogProps> = ({
             required
             placeholder="Start writing your note..."
           />
+          
+          {onAudioRecorded && (
+            <AudioRecorder onAudioRecorded={onAudioRecorded} />
+          )}
         </DialogContent>
         
         <DialogActions sx={{ px: 3, pb: 2 }}>
