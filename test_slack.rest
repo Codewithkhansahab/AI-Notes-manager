@@ -1,0 +1,6 @@
+POST https://hooks.slack.com/services/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
+Content-Type: application/json
+
+{
+  "text": "⚡ Testing Slack from VS Code!"
+}
