@@ -2,34 +2,25 @@ name: Test Slack Notifications
 
 on:
   workflow_dispatch:
-    inputs:
-      simulate:
-        description: "success or fail"
-        required: true
-        default: "success"
-        type: choice
-        options:
-          - success
-          - fail
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Simulate step result
-        id: simulate
+      - name: Step that may succeed or fail
+        id: random
         run: |
-          if [ "${{ github.event.inputs.simulate }}" = "fail" ]; then
-            echo "Simulating failure..."
-            exit 1
+          echo "Testing real success/failure..."
+          # Randomly fail or succeed to test both paths
+          if [ $((RANDOM % 2)) -eq 0 ]; then
+            echo "Simulating SUCCESS!"
           else
-            echo "Simulating success..."
+            echo "Simulating FAILURE!"
+            exit 1
           fi
 
-      # ------------------------------
-      # 🟢 Slack Success (if simulated success)
-      # ------------------------------
+      # 🟢 Slack Notification for SUCCESS
       - name: Slack Success Notification
         if: success()
         run: |
@@ -38,13 +29,11 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{
               "channel": "'"${{ secrets.SLACK_CHANNEL_ID }}"'",
-              "text": "✅ Test SUCCESS triggered by ${{ github.actor }} \n<${{ github.run_url }}|View Run>"
+              "text": "✅ REAL SUCCESS TEST - Run by *${{ github.actor }}* \n<${{ github.run_url }}|View Run>"
             }' \
             https://slack.com/api/chat.postMessage
 
-      # ------------------------------
-      # 🔴 Slack Failure (if simulated failure)
-      # ------------------------------
+      # 🔴 Slack Notification for FAILURE
       - name: Slack Failure Notification
         if: failure()
         run: |
@@ -53,6 +42,6 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{
               "channel": "'"${{ secrets.SLACK_CHANNEL_ID }}"'",
-              "text": "❌ Test FAILURE triggered by ${{ github.actor }} \n<${{ github.run_url }}|View Run>"
+              "text": "❌ REAL FAILURE TEST - Run by *${{ github.actor }}* \n<${{ github.run_url }}|View Run>"
             }' \
             https://slack.com/api/chat.postMessage
