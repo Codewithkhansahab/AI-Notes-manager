@@ -1,20 +1,58 @@
-name: Slack Test Workflow
+name: Test Slack Notifications
 
 on:
-  workflow_dispatch:   # Allows manual trigger
+  workflow_dispatch:
+    inputs:
+      simulate:
+        description: "success or fail"
+        required: true
+        default: "success"
+        type: choice
+        options:
+          - success
+          - fail
 
 jobs:
-  send_slack_message:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test Slack Bot Notification
+      - name: Simulate step result
+        id: simulate
+        run: |
+          if [ "${{ github.event.inputs.simulate }}" = "fail" ]; then
+            echo "Simulating failure..."
+            exit 1
+          else
+            echo "Simulating success..."
+          fi
+
+      # ------------------------------
+      # 🟢 Slack Success (if simulated success)
+      # ------------------------------
+      - name: Slack Success Notification
+        if: success()
         run: |
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}" \
             -H "Content-Type: application/json" \
             --data '{
               "channel": "'"${{ secrets.SLACK_CHANNEL_ID }}"'",
-              "text": "🚀 GitHub Actions Slack Test Successful! Triggered by: ${{ github.actor }} \n<${{ github.run_url }}|View Run>"
+              "text": "✅ Test SUCCESS triggered by ${{ github.actor }} \n<${{ github.run_url }}|View Run>"
+            }' \
+            https://slack.com/api/chat.postMessage
+
+      # ------------------------------
+      # 🔴 Slack Failure (if simulated failure)
+      # ------------------------------
+      - name: Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "channel": "'"${{ secrets.SLACK_CHANNEL_ID }}"'",
+              "text": "❌ Test FAILURE triggered by ${{ github.actor }} \n<${{ github.run_url }}|View Run>"
             }' \
             https://slack.com/api/chat.postMessage
