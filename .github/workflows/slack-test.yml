@@ -1,0 +1,20 @@
+name: Slack Test Workflow
+
+on:
+  workflow_dispatch:   # Allows manual trigger
+
+jobs:
+  send_slack_message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test Slack Bot Notification
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "channel": "'"${{ secrets.SLACK_CHANNEL_ID }}"'",
+              "text": "🚀 GitHub Actions Slack Test Successful! Triggered by: ${{ github.actor }} \n<${{ github.run_url }}|View Run>"
+            }' \
+            https://slack.com/api/chat.postMessage

@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Fab,
-  Grid,
   Alert,
   Snackbar,
   CircularProgress,
@@ -11,8 +10,12 @@ import {
   InputAdornment,
   TextField,
   Chip,
+  Card,
+  CardContent,
 } from '@mui/material';
-import { Add, Search, Notes as NotesIcon } from '@mui/icons-material';
+import { Add, Search, Notes as NotesIcon, Mic, Star, TrendingUp } from '@mui/icons-material';
+import Masonry from 'react-masonry-css';
+import { motion } from 'framer-motion';
 import { Note, CreateNoteRequest, UpdateNoteRequest } from '../types';
 import { notesAPI } from '../services/api';
 import NoteCard from '../components/NoteCard';
@@ -176,57 +179,217 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  const breakpointColumns = {
+    default: 3,
+    1100: 2,
+    700: 1,
+  };
+
+  const voiceNotesCount = notes.filter(note => note.audio_path).length;
+  const summarizedCount = notes.filter(note => note.summary).length;
+
   return (
     <Container maxWidth="lg">
-      <Box sx={{ mb: 4 }}>
-        <Box display="flex" alignItems="center" mb={2}>
-          <NotesIcon sx={{ fontSize: 32, mr: 2, color: 'primary.main' }} />
-          <Typography variant="h4" component="h1" fontWeight="bold">
-            My Notes
-          </Typography>
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Box sx={{ mb: 4 }}>
+          <Box display="flex" alignItems="center" mb={3}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mr: 2,
+              }}
+            >
+              <NotesIcon sx={{ fontSize: 28, color: 'white' }} />
+            </Box>
+            <Typography variant="h4" component="h1" fontWeight={700}>
+              My Notes
+            </Typography>
+          </Box>
+
+          {/* Stats Cards */}
+          <Box display="flex" gap={2} mb={3} sx={{ overflowX: 'auto', pb: 1 }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              style={{ flex: 1, minWidth: 200 }}
+            >
+              <Card
+                sx={{
+                  background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
+                  color: 'white',
+                  height: '100%',
+                }}
+              >
+                <CardContent>
+                  <Box display="flex" alignItems="center" justifyContent="space-between">
+                    <Box>
+                      <Typography variant="h3" fontWeight={700}>
+                        {notes.length}
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                        Total Notes
+                      </Typography>
+                    </Box>
+                    <NotesIcon sx={{ fontSize: 48, opacity: 0.3 }} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              style={{ flex: 1, minWidth: 200 }}
+            >
+              <Card
+                sx={{
+                  background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
+                  color: 'white',
+                  height: '100%',
+                }}
+              >
+                <CardContent>
+                  <Box display="flex" alignItems="center" justifyContent="space-between">
+                    <Box>
+                      <Typography variant="h3" fontWeight={700}>
+                        {voiceNotesCount}
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                        Voice Notes
+                      </Typography>
+                    </Box>
+                    <Mic sx={{ fontSize: 48, opacity: 0.3 }} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+              style={{ flex: 1, minWidth: 200 }}
+            >
+              <Card
+                sx={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: 'white',
+                  height: '100%',
+                }}
+              >
+                <CardContent>
+                  <Box display="flex" alignItems="center" justifyContent="space-between">
+                    <Box>
+                      <Typography variant="h3" fontWeight={700}>
+                        {summarizedCount}
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                        AI Summaries
+                      </Typography>
+                    </Box>
+                    <TrendingUp sx={{ fontSize: 48, opacity: 0.3 }} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Box>
+
+          {/* Search Bar */}
+          <Box display="flex" justifyContent="space-between" alignItems="center" gap={2}>
+            <TextField
+              placeholder="Search notes..."
+              variant="outlined"
+              size="medium"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{
+                flexGrow: 1,
+                maxWidth: 500,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                  bgcolor: (theme) =>
+                    theme.palette.mode === 'light' ? 'white' : 'rgba(30, 41, 59, 0.5)',
+                  backdropFilter: 'blur(10px)',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Chip
+              label={`${filteredNotes.length} note${filteredNotes.length !== 1 ? 's' : ''}`}
+              color="primary"
+              sx={{
+                fontWeight: 600,
+                px: 1,
+              }}
+            />
+          </Box>
         </Box>
-        
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <TextField
-            placeholder="Search notes..."
-            variant="outlined"
-            size="small"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{ minWidth: 300 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Chip 
-            label={`${filteredNotes.length} note${filteredNotes.length !== 1 ? 's' : ''}`}
-            color="primary"
-            variant="outlined"
-          />
-        </Box>
-      </Box>
+      </motion.div>
 
       {filteredNotes.length === 0 ? (
-        <Box textAlign="center" py={8}>
-          <NotesIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            {searchQuery ? 'No notes found' : 'No notes yet'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {searchQuery 
-              ? 'Try adjusting your search terms' 
-              : 'Create your first note to get started'
-            }
-          </Typography>
-        </Box>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Box textAlign="center" py={8}>
+            <Box
+              sx={{
+                width: 120,
+                height: 120,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto',
+                mb: 3,
+              }}
+            >
+              <NotesIcon sx={{ fontSize: 64, color: 'primary.main' }} />
+            </Box>
+            <Typography variant="h5" fontWeight={600} color="text.primary" gutterBottom>
+              {searchQuery ? 'No notes found' : 'No notes yet'}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 400, mx: 'auto' }}>
+              {searchQuery
+                ? 'Try adjusting your search terms'
+                : 'Create your first note to get started with your AI-powered note-taking journey'}
+            </Typography>
+          </Box>
+        </motion.div>
       ) : (
-        <Grid container spacing={3}>
-          {filteredNotes.map((note) => (
-            <Grid item xs={12} sm={6} md={4} key={note.id}>
+        <Masonry
+          breakpointCols={breakpointColumns}
+          className="masonry-grid"
+          columnClassName="masonry-grid_column"
+        >
+          {filteredNotes.map((note, index) => (
+            <motion.div
+              key={note.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+            >
               <NoteCard
                 note={note}
                 onEdit={handleEditNote}
@@ -237,9 +400,9 @@ const Dashboard: React.FC = () => {
                 onUploadAudio={handleUploadAudio}
                 onTranscribeAudio={handleTranscribeAudio}
               />
-            </Grid>
+            </motion.div>
           ))}
-        </Grid>
+        </Masonry>
       )}
 
       <Fab

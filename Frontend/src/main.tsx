@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { AuthProvider } from './contexts/AuthContext'
 import { CustomThemeProvider } from './contexts/ThemeContext'
 import App from './App'
+import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

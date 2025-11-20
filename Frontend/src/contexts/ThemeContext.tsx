@@ -61,30 +61,49 @@ export const CustomThemeProvider: React.FC<CustomThemeProviderProps> = ({
     palette: {
       mode,
       primary: {
-        main: mode === "light" ? "#1976d2" : "#90caf9",
+        main: mode === "light" ? "#6366f1" : "#818cf8",
+        light: mode === "light" ? "#818cf8" : "#a5b4fc",
+        dark: mode === "light" ? "#4f46e5" : "#6366f1",
       },
       secondary: {
-        main: mode === "light" ? "#dc004e" : "#f48fb1",
+        main: mode === "light" ? "#ec4899" : "#f472b6",
+        light: mode === "light" ? "#f472b6" : "#f9a8d4",
+        dark: mode === "light" ? "#db2777" : "#ec4899",
       },
       background: {
-        default: mode === "light" ? "#f5f5f5" : "#121212",
-        paper: mode === "light" ? "#ffffff" : "#1e1e1e",
+        default: mode === "light" ? "#ffffff" : "#0f172a",
+        paper: mode === "light" ? "#ffffff" : "#1e293b",
       },
       text: {
-        primary: mode === "light" ? "#000000" : "#ffffff",
-        secondary: mode === "light" ? "#666666" : "#aaaaaa",
+        primary: mode === "light" ? "#1f2937" : "#f1f5f9",
+        secondary: mode === "light" ? "#6b7280" : "#94a3b8",
       },
     },
     typography: {
-      fontFamily: "Roboto, Arial, sans-serif",
+      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+      h4: {
+        fontWeight: 700,
+      },
+      h6: {
+        fontWeight: 600,
+      },
+    },
+    shape: {
+      borderRadius: 12,
     },
     components: {
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === "light" ? "#ffffff" : "#2d2d2d",
+            backgroundColor: mode === "light" ? "#ffffff" : "rgba(30, 41, 59, 0.8)",
+            backdropFilter: mode === "dark" ? "blur(10px)" : "none",
+            border: mode === "dark" ? "1px solid rgba(148, 163, 184, 0.1)" : "none",
+            transition: "all 0.3s ease",
             "&:hover": {
-              backgroundColor: mode === "light" ? "#fafafa" : "#353535",
+              transform: "translateY(-4px)",
+              boxShadow: mode === "light" 
+                ? "0 12px 24px rgba(0,0,0,0.1)" 
+                : "0 12px 24px rgba(0,0,0,0.3)",
             },
           },
         },
@@ -92,14 +111,54 @@ export const CustomThemeProvider: React.FC<CustomThemeProviderProps> = ({
       MuiPaper: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === "light" ? "#ffffff" : "#2d2d2d",
+            backgroundColor: mode === "light" ? "#ffffff" : "rgba(30, 41, 59, 0.8)",
+            backdropFilter: mode === "dark" ? "blur(10px)" : "none",
           },
         },
       },
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === "light" ? "#1976d2" : "#1e1e1e",
+            background: mode === "light" 
+              ? "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)"
+              : "rgba(30, 41, 59, 0.95)",
+            backdropFilter: "blur(10px)",
+            boxShadow: mode === "light"
+              ? "0 4px 6px rgba(0,0,0,0.1)"
+              : "0 4px 6px rgba(0,0,0,0.3)",
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: "none",
+            fontWeight: 600,
+            borderRadius: 8,
+          },
+          contained: {
+            background: mode === "light"
+              ? "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)"
+              : "linear-gradient(135deg, #818cf8 0%, #60a5fa 100%)",
+            boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
+            "&:hover": {
+              boxShadow: "0 6px 16px rgba(99, 102, 241, 0.4)",
+              transform: "translateY(-2px)",
+            },
+          },
+        },
+      },
+      MuiFab: {
+        styleOverrides: {
+          root: {
+            background: mode === "light"
+              ? "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)"
+              : "linear-gradient(135deg, #818cf8 0%, #60a5fa 100%)",
+            boxShadow: "0 8px 16px rgba(99, 102, 241, 0.3)",
+            "&:hover": {
+              boxShadow: "0 12px 24px rgba(99, 102, 241, 0.4)",
+              transform: "scale(1.05)",
+            },
           },
         },
       },
