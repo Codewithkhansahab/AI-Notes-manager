@@ -6,7 +6,6 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
-  Container,
   InputAdornment,
   TextField,
   Chip,
@@ -21,7 +20,11 @@ import { notesAPI } from '../services/api';
 import NoteCard from '../components/NoteCard';
 import NoteDialog from '../components/NoteDialog';
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  filterType?: 'all' | 'voice' | 'favorites';
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ filterType = 'all' }) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,19 +43,29 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Filter notes based on search query
-    if (searchQuery.trim() === '') {
-      setFilteredNotes(notes);
-    } else {
-      const filtered = notes.filter(note =>
+    // Filter notes based on search query and filter type
+    let filtered = notes;
+
+    // Apply filter type
+    if (filterType === 'voice') {
+      filtered = filtered.filter(note => note.audio_path);
+    } else if (filterType === 'favorites') {
+      // For now, show all notes. Later add favorite field
+      filtered = filtered;
+    }
+
+    // Apply search query
+    if (searchQuery.trim() !== '') {
+      filtered = filtered.filter(note =>
         (note.title?.toLowerCase().includes(searchQuery.toLowerCase())) ||
         note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (note.summary?.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (note.image_description?.toLowerCase().includes(searchQuery.toLowerCase()))
       );
-      setFilteredNotes(filtered);
     }
-  }, [notes, searchQuery]);
+
+    setFilteredNotes(filtered);
+  }, [notes, searchQuery, filterType]);
 
   const fetchNotes = async () => {
     try {
@@ -189,7 +202,7 @@ const Dashboard: React.FC = () => {
   const summarizedCount = notes.filter(note => note.summary).length;
 
   return (
-    <Container maxWidth="lg">
+    <Box sx={{ p: 3 }}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -440,7 +453,7 @@ const Dashboard: React.FC = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </Box>
   );
 };
 

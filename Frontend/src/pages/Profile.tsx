@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
 import {
-  Container,
+  Box,
   Paper,
   Typography,
   TextField,
   Button,
-  Box,
   Avatar,
   IconButton,
   Alert,
@@ -131,8 +130,8 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+    <Box sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
         <Typography variant="h4" gutterBottom>
           Profile
         </Typography>
@@ -284,7 +283,7 @@ const Profile: React.FC = () => {
           )}
         </Box>
       </Paper>
-    </Container>
+    </Box>
   );
 };
 
